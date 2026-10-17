@@ -628,6 +628,7 @@ pub enum DragModelV1 {
     GI,
     GS,
     RA4,
+    GA,
 }
 
 impl From<DragModelV1> for DragModel {
@@ -642,6 +643,7 @@ impl From<DragModelV1> for DragModel {
             DragModelV1::GI => DragModel::GI,
             DragModelV1::GS => DragModel::GS,
             DragModelV1::RA4 => DragModel::RA4,
+            DragModelV1::GA => DragModel::GA,
         }
     }
 }

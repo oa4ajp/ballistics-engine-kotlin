@@ -767,6 +767,7 @@ fn all_reference_drag_models_decode_and_round_trip_exact_wire_names() {
         ("GI", DragModelV1::GI),
         ("GS", DragModelV1::GS),
         ("RA4", DragModelV1::RA4),
+        ("GA", DragModelV1::GA),
     ];
     assert_eq!(
         cases.map(|(wire_name, _)| wire_name),

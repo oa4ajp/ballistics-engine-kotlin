@@ -8,6 +8,7 @@
 //!
 //! When `run_drag_curve` was rewired onto the formatter, all 27 outputs (9 models x 3 formats)
 //! were byte-diffed against the pre-refactor binary and matched; these tests keep that true.
+//! After adding GA the loop covers 30 combinations (10 models x 3 formats).
 
 use std::process::Command;
 
@@ -21,7 +22,7 @@ use ballistics_engine::DragModel;
 // sibling tests (dsf_profile_cli, compare_cli) already use this form.
 const BIN: &str = env!("CARGO_BIN_EXE_ballistics");
 
-const ALL_MODELS: [(&str, DragModel); 9] = [
+const ALL_MODELS: [(&str, DragModel); 10] = [
     ("g1", DragModel::G1),
     ("g2", DragModel::G2),
     ("g5", DragModel::G5),
@@ -31,6 +32,7 @@ const ALL_MODELS: [(&str, DragModel); 9] = [
     ("gi", DragModel::GI),
     ("gs", DragModel::GS),
     ("ra4", DragModel::RA4),
+    ("ga", DragModel::GA),
 ];
 
 /// The binary's stdout is the shared formatter's string, verbatim, for all 27 combinations.

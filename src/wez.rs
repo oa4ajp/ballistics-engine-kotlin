@@ -223,6 +223,7 @@ fn wez_kernel_drag_model(model: DragModel) -> DragModelV1 {
         DragModel::GI => DragModelV1::GI,
         DragModel::GS => DragModelV1::GS,
         DragModel::RA4 => DragModelV1::RA4,
+        DragModel::GA => DragModelV1::GA,
     }
 }
 
@@ -889,6 +890,7 @@ mod wez_tests {
             (DragModel::GI, DragModelV1::GI),
             (DragModel::GS, DragModelV1::GS),
             (DragModel::RA4, DragModelV1::RA4),
+            (DragModel::GA, DragModelV1::GA),
         ] {
             assert_eq!(wez_kernel_drag_model(engine), wire);
         }
@@ -1247,6 +1249,7 @@ mod wez_tests {
             ("GI", DragModel::GI),
             ("GS", DragModel::GS),
             ("RA4", DragModel::RA4),
+            ("GA", DragModel::GA),
         ] {
             let mut inputs = test_base_inputs();
             inputs.bc_type = model;
@@ -1372,6 +1375,11 @@ mod wez_tests {
     #[test]
     fn ra4_attribution_is_available() {
         assert_builtin_drag_model_attribution_available(DragModel::RA4);
+    }
+
+    #[test]
+    fn ga_attribution_is_available() {
+        assert_builtin_drag_model_attribution_available(DragModel::GA);
     }
 
     /// A loaded custom drag table replaces G-model+BC drag entirely, and the WEZ mapping does

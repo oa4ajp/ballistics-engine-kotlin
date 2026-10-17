@@ -6569,7 +6569,7 @@ fn parse_observed_drop(s: &str) -> Result<(f64, DropUnit), String> {
 /// a custom drag curve — so nothing here changes what `dsf` computes from a profile that
 /// sets any of them; see `DsfSolveInputs`'s own doc comment for the (empirically
 /// confirmed inert) fields it deliberately omits. Drag model resolves through
-/// `parse_drag_model_arg` — the FULL G1/G2/G5/G6/G7/G8/GI/GS/RA4 family, same as
+/// `parse_drag_model_arg` — the FULL G1/G2/G5/G6/G7/G8/GI/GS/RA4/GA family, same as
 /// `trajectory --saved-profile`, and with no coercion warning for any of them (only a
 /// genuinely unrecognized string still warns and falls back to G1). This restores the
 /// pre-MBA-1357 behaviour: `DsfSolveInputs::drag_model` was briefly narrowed to
@@ -22531,6 +22531,8 @@ mod drag_model_arg_warning_tests {
         assert_eq!(parse_drag_model_arg("g5"), DragModel::G5);
         assert_eq!(parse_drag_model_arg("ra4"), DragModel::RA4);
         assert_eq!(parse_drag_model_arg("gi"), DragModel::GI);
+        assert_eq!(parse_drag_model_arg("ga"), DragModel::GA);
+        assert_eq!(parse_drag_model_arg("GA"), DragModel::GA);
         // Still coerces a truly unrecognized string to G1, with a warning.
         assert_eq!(parse_drag_model_arg("banana"), DragModel::G1);
     }
@@ -22565,6 +22567,7 @@ mod drag_model_arg_warning_tests {
             (DragModel::GI, "GI"),
             (DragModel::GS, "GS"),
             (DragModel::RA4, "RA4"),
+            (DragModel::GA, "GA"),
         ] {
             let w = aux_g1_coercion_warning("--bc-table correction", model)
                 .unwrap_or_else(|| panic!("{tag} must warn"));
@@ -22582,6 +22585,7 @@ mod drag_model_arg_warning_tests {
         // argument (in addition to the stderr warning `aux_g1_coercion_warning` covers).
         assert_eq!(warn_aux_g1_coercion("test", DragModel::G5), "G1");
         assert_eq!(warn_aux_g1_coercion("test", DragModel::RA4), "G1");
+        assert_eq!(warn_aux_g1_coercion("test", DragModel::GA), "G1");
     }
 }
 

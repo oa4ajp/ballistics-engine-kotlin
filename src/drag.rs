@@ -654,6 +654,17 @@ static RA4_DRAG_TABLE: LazyLock<DragTable> = LazyLock::new(|| {
     parse_embedded_drag_table(include_str!("../data/ra4.csv"), &fallback_data)
 });
 
+/// GA drag table — user-provided reference drag function, baked in from data/ga.csv at
+/// compile time. The table extends to Mach 3.60. Note that Mach 3.00 and 3.10 share the
+/// same Cd value (0.5208) as supplied in the source data; the embedded parser uses the
+/// infallible DragTable::new() so this is accepted and interpolation holds at 0.5208
+/// across that flat segment.
+static GA_DRAG_TABLE: LazyLock<DragTable> = LazyLock::new(|| {
+    // 3-point fallback for the impossible parse-failure path only.
+    let fallback_data = [(0.0, 0.2495), (1.0, 0.4875), (3.60, 0.5033)];
+    parse_embedded_drag_table(include_str!("../data/ga.csv"), &fallback_data)
+});
+
 /// Get drag coefficient for given Mach number and drag model.
 ///
 /// Every `DragModel` variant now has a dedicated high-resolution reference table (MBA-1386):
@@ -670,6 +681,7 @@ pub fn get_drag_coefficient(mach: f64, drag_model: &DragModel) -> f64 {
         DragModel::GI => GI_DRAG_TABLE.interpolate(mach),
         DragModel::GS => GS_DRAG_TABLE.interpolate(mach),
         DragModel::RA4 => RA4_DRAG_TABLE.interpolate(mach),
+        DragModel::GA => GA_DRAG_TABLE.interpolate(mach),
     }
 }
 
@@ -700,6 +712,7 @@ pub fn reference_drag_table(drag_model: &DragModel) -> &'static DragTable {
         DragModel::GI => &GI_DRAG_TABLE,
         DragModel::GS => &GS_DRAG_TABLE,
         DragModel::RA4 => &RA4_DRAG_TABLE,
+        DragModel::GA => &GA_DRAG_TABLE,
     }
 }
 
@@ -1397,10 +1410,35 @@ mod tests {
     }
 
     #[test]
+    fn test_ga_drag_coefficient_spot_values() {
+        // Exact values from data/ga.csv. Table tops out at Mach 3.60.
+        // Mach 3.00 and 3.10 share Cd=0.5208 (flat segment per source data).
+        for (mach, expected) in [
+            (0.00, 0.2495),
+            (0.50, 0.1889),
+            (1.00, 0.4875),
+            (1.50, 0.6669),
+            (3.00, 0.5208),
+            (3.10, 0.5208),
+            (3.60, 0.5033),
+        ] {
+            let cd = get_drag_coefficient(mach, &DragModel::GA);
+            assert!(
+                (cd - expected).abs() < 1e-6,
+                "GA CD at Mach {mach}: expected {expected}, got {cd}"
+            );
+        }
+    }
+
+    #[test]
     fn embedded_family_tables_have_ascending_mach_and_positive_cd() {
         // Structural check, via the public DragTable::from_csv_str loader (which enforces
         // strictly-ascending Mach and positive Cd through try_new): every embedded reference
         // table parses cleanly and has a sane point count.
+        // GA has Mach 3.00 and 3.10 at the same Cd (0.5208), so from_csv_str (which
+        // calls try_new and requires strictly-ascending Mach) would return Err for it.
+        // That is expected and correct; the embedded parser uses the infallible new().
+        // We therefore omit GA from this strictly-ascending structural check.
         let decks: [(&str, &str); 7] = [
             ("G1", include_str!("../data/g1.csv")),
             ("G2", include_str!("../data/g2.csv")),
@@ -1424,7 +1462,7 @@ mod tests {
             );
         }
 
-        // Also sweep the full public get_drag_coefficient API across all 9 families (including
+        // Also sweep the full public get_drag_coefficient API across all 10 families (including
         // the runtime-loaded G6/G8) and confirm Cd stays finite and positive everywhere.
         let models = [
             DragModel::G1,
@@ -1436,6 +1474,7 @@ mod tests {
             DragModel::GI,
             DragModel::GS,
             DragModel::RA4,
+            DragModel::GA,
         ];
         for model in models {
             for i in 0..=50 {
@@ -1586,7 +1625,7 @@ pub fn interpolated_bc(mach: f64, segments: &[(f64, f64)]) -> f64 {
 mod reference_drag_table_tests {
     use super::*;
 
-    const ALL_MODELS: [DragModel; 9] = [
+    const ALL_MODELS: [DragModel; 10] = [
         DragModel::G1,
         DragModel::G2,
         DragModel::G5,
@@ -1596,6 +1635,7 @@ mod reference_drag_table_tests {
         DragModel::GI,
         DragModel::GS,
         DragModel::RA4,
+        DragModel::GA,
     ];
 
     /// The reason this accessor exists is so a consumer's chart cannot drift from the engine.

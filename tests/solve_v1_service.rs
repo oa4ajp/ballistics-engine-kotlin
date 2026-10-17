@@ -139,6 +139,7 @@ fn every_added_drag_model_matches_its_direct_engine_path() {
         ("GI", DragModel::GI),
         ("GS", DragModel::GS),
         ("RA4", DragModel::RA4),
+        ("GA", DragModel::GA),
     ] {
         let mut value = request_value("rk45");
         value["projectile"]["drag_model"] = json!(wire_name);

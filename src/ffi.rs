@@ -322,6 +322,8 @@ fn convert_inputs(inputs: &FFIBallisticInputs) -> BallisticInputs {
         // MBA-1386: additive slot for the new RA4 family. Existing callers passing
         // 0-7 are unaffected; any other/unrecognized value still falls back to G1.
         8 => DragModel::RA4,
+        // Additive slot for GA; existing callers passing 0-8 are unaffected.
+        9 => DragModel::GA,
         _ => DragModel::G1,
     };
     ballistic_inputs.sight_height = inputs.sight_height;
@@ -1894,11 +1896,17 @@ mod tests {
     /// new RA4 family, appended after the existing 0-7 mapping (G1, G7, G2, G5, G6,
     /// G8, GI, GS). No existing caller's value changes meaning; `8` is simply new,
     /// and anything still outside 0-8 keeps falling back to G1.
+    /// GA is slot 9 (additive, all prior slots unchanged).
     #[test]
     fn bc_type_8_maps_to_ra4() {
         let mut inputs = valid_trajectory_inputs();
         inputs.bc_type = 8;
         assert_eq!(convert_inputs(&inputs).bc_type, DragModel::RA4);
+
+        // GA is the additive slot 9.
+        let mut inputs_ga = valid_trajectory_inputs();
+        inputs_ga.bc_type = 9;
+        assert_eq!(convert_inputs(&inputs_ga).bc_type, DragModel::GA);
 
         // Every pre-existing code is unaffected by the addition.
         let expected = [
@@ -1917,8 +1925,8 @@ mod tests {
             assert_eq!(convert_inputs(&inputs).bc_type, model, "code {code}");
         }
 
-        // Unrecognized codes (including ones above the new 8) still fall back to G1.
-        for code in [9, 42, -1] {
+        // Unrecognized codes (including ones above the new 9) still fall back to G1.
+        for code in [10, 42, -1] {
             let mut inputs = valid_trajectory_inputs();
             inputs.bc_type = code;
             assert_eq!(

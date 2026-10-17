@@ -1920,6 +1920,7 @@ fn drag_model_to_engine(model: DragModelV1) -> DragModel {
         DragModelV1::GI => DragModel::GI,
         DragModelV1::GS => DragModel::GS,
         DragModelV1::RA4 => DragModel::RA4,
+        DragModelV1::GA => DragModel::GA,
     }
 }
 
@@ -2629,6 +2630,7 @@ mod tests {
         assert_eq!(drag_model_to_engine(DragModelV1::GI), DragModel::GI);
         assert_eq!(drag_model_to_engine(DragModelV1::GS), DragModel::GS);
         assert_eq!(drag_model_to_engine(DragModelV1::RA4), DragModel::RA4);
+        assert_eq!(drag_model_to_engine(DragModelV1::GA), DragModel::GA);
 
         for (engine, wire) in [
             (

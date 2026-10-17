@@ -12,6 +12,8 @@ pub enum DragModel {
     GS,
     /// British RA 1929 reference drag function (McCoy, Modern Exterior Ballistics).
     RA4,
+    /// GA reference drag function (user-provided reference data).
+    GA,
 }
 
 impl DragModel {
@@ -27,6 +29,7 @@ impl DragModel {
             "GI" => Some(DragModel::GI),
             "GS" => Some(DragModel::GS),
             "RA4" => Some(DragModel::RA4),
+            "GA" => Some(DragModel::GA),
             _ => None,
         }
     }
@@ -54,6 +57,7 @@ mod tests {
         assert_eq!(DragModel::from_str("GI"), Some(DragModel::GI));
         assert_eq!(DragModel::from_str("GS"), Some(DragModel::GS));
         assert_eq!(DragModel::from_str("RA4"), Some(DragModel::RA4));
+        assert_eq!(DragModel::from_str("GA"), Some(DragModel::GA));
     }
 
     #[test]
@@ -68,6 +72,8 @@ mod tests {
         assert_eq!(DragModel::from_str("Gs"), Some(DragModel::GS));
         assert_eq!(DragModel::from_str("ra4"), Some(DragModel::RA4));
         assert_eq!(DragModel::from_str("Ra4"), Some(DragModel::RA4));
+        assert_eq!(DragModel::from_str("ga"), Some(DragModel::GA));
+        assert_eq!(DragModel::from_str("Ga"), Some(DragModel::GA));
     }
 
     #[test]
@@ -102,6 +108,7 @@ mod tests {
         assert_eq!(format!("{}", DragModel::GI), "GI");
         assert_eq!(format!("{}", DragModel::GS), "GS");
         assert_eq!(format!("{}", DragModel::RA4), "RA4");
+        assert_eq!(format!("{}", DragModel::GA), "GA");
     }
 
     #[test]
@@ -149,5 +156,15 @@ mod tests {
         assert_eq!(format!("{:?}", DragModel::GI), "GI");
         assert_eq!(format!("{:?}", DragModel::GS), "GS");
         assert_eq!(format!("{:?}", DragModel::RA4), "RA4");
+        assert_eq!(format!("{:?}", DragModel::GA), "GA");
+    }
+
+    #[test]
+    fn ga_from_str_roundtrip() {
+        let model = DragModel::from_str("GA").expect("GA must parse");
+        assert_eq!(model, DragModel::GA);
+        assert_eq!(format!("{model}"), "GA");
+        assert_eq!(format!("{model:?}"), "GA");
+        assert_eq!(DragModel::from_str("ga"), Some(DragModel::GA));
     }
 }

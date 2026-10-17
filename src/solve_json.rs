@@ -19,8 +19,8 @@ pub const SOLVE_JSON_SCHEMA_VERSION_V1: u32 = 1;
 ///
 /// Kept as the single metadata source for protocol validation and the MCP schema/engine-info
 /// mirrors so those public surfaces cannot drift apart when the engine gains a model.
-pub const DRAG_MODEL_WIRE_NAMES_V1: [&str; 9] =
-    ["G1", "G2", "G5", "G6", "G7", "G8", "GI", "GS", "RA4"];
+pub const DRAG_MODEL_WIRE_NAMES_V1: [&str; 10] =
+    ["G1", "G2", "G5", "G6", "G7", "G8", "GI", "GS", "RA4", "GA"];
 
 /// Maximum number of trajectory observations in one solve-json v1 success response.
 ///
@@ -428,6 +428,8 @@ pub enum DragModelV1 {
     GS,
     #[serde(rename = "RA4")]
     RA4,
+    #[serde(rename = "GA")]
+    GA,
 }
 
 /// Rifle and sight geometry.
